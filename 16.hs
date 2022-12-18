@@ -62,7 +62,7 @@ parseLine = do
 minuteScore :: DM.Map Identifier Integer -> DS.Set Identifier -> Integer
 minuteScore flowRates openValves = sum (map (\valve -> DM.findWithDefault (error "huh") valve flowRates) (DS.toList openValves))
 
--- eval :: DM.Map Identifier (DM.Map Identifier Int) -> DM.Map Identifier Integer -> State -> [(Integer, DS.Set Identifier, Maybe (Identifier, Int), Maybe (Identifier, Int))]
+eval :: DM.Map Identifier (DM.Map Identifier Int) -> DM.Map Identifier Integer -> State -> [Integer]
 eval graph flowRates (State { roundCount = 26, .. }) = []
 eval graph flowRates (State { .. }) = let
     newOpenValves = (case elephant of
@@ -88,9 +88,9 @@ eval graph flowRates (State { .. }) = let
                                             ]
 
     roundScore = minuteScore flowRates newOpenValves
-    in ((roundScore{- , newOpenValves, me, elephant -}) : (case subOptions of
+    in (roundScore : (case subOptions of
         [] -> []
-        _ -> maximumBy (comparing (sum {- . map (\(a,_,_,_) -> a)-})) subOptions))
+        _ -> maximumBy (comparing sum) subOptions))
 
 dijkstra :: Identifier -> DM.Map Identifier [Identifier] -> DM.Map Identifier Int
 dijkstra start edges = loop [start] DS.empty (DM.singleton start 0)
@@ -132,4 +132,4 @@ main = do
             print graph
 
             mapM_ print result
-            print (sum {- $ map (\(a,_,_,_) -> a) -} result)
+            print (sum result)
