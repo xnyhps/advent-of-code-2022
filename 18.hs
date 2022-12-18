@@ -67,9 +67,9 @@ findOutside grid = DS.fromList (loop [(minx,miny,minz)] DS.empty)
             maxz = maximum (map (\(x,y,z) -> z) values) + 1
             minz = minimum (map (\(x,y,z) -> z) values) - 1
 
-            loop ((x,y,z):queue) seen | (x,y,z) `DS.member` seen = loop queue seen
-            loop ((x,y,z):queue) seen = let newPoints = step (x,y,z) in (x,y,z) : (loop (queue ++ newPoints) (DS.insert (x,y,z) seen))
             loop [] seen = []
+            loop (point:queue) seen | point `DS.member` seen = loop queue seen
+            loop (point:queue) seen = let newPoints = step point in point : (loop (queue ++ (filter (`DS.notMember` seen) newPoints)) (DS.insert point seen))
 
             checkNeighbour (x,y,z) (dx,dy,dz) | x + dx < minx = Nothing
             checkNeighbour (x,y,z) (dx,dy,dz) | y + dy < miny = Nothing
@@ -80,7 +80,7 @@ findOutside grid = DS.fromList (loop [(minx,miny,minz)] DS.empty)
             checkNeighbour (x,y,z) (dx,dy,dz) | (x + dx, y + dy, z + dz) `DS.member` grid = Nothing
             checkNeighbour (x,y,z) (dx,dy,dz) | otherwise = Just (x + dx, y + dy, z + dz)
 
-            step (x,y,z) = catMaybes (map (checkNeighbour (x,y,z)) directions)
+            step point = catMaybes (map (checkNeighbour point) directions)
 
 
 main :: IO ()
